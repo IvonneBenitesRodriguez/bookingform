@@ -21,3 +21,70 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Rails backend
+*.rbc
+*.sassc
+.sass-cache
+capybara-*.html
+.rspec
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+/db/*.sqlite3
+/db/*.sqlite3-journal
+/db/*.sqlite3-[0-9]*
+/public/system
+/coverage/
+/spec/tmp
+*.orig
+rerun.txt
+pickle-email-*.html
+.byebug_history
+/config/master.key
+/config/credentials.yml.enc
+
+# Bundler
+/.bundle
+/vendor/bundle
+
+# Database
+/db/schema.rb
+*.dump
+
+# Environment variables (CRÍTICO para seguridad)
+.env
+.env.*.local
+.env.production
+.env.staging
+.env.development
+.env.test
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Security sensitive files
+/config/secrets.yml
+/config/database.yml
+/config/application.yml
