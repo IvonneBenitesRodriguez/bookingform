@@ -193,6 +193,7 @@ function BookingForm() {
                 value={interestsId}
                 onChange={handleInterestsIdChange}
                 isInvalid={!!errors.interestsId}
+                className="w-50 ms-3"
               >
                 <option value="">Select your interests</option>
                 <option value="1">Local Gastronomy</option>
@@ -214,6 +215,7 @@ function BookingForm() {
                 value={roomId}
                 onChange={handleRoomIdChange}
                 isInvalid={!!errors.roomId}
+                className="w-50 ms-3"
               >
                 <option value="">Select a room</option>
                 <option value="1">Luxus Room</option>
