@@ -97,7 +97,7 @@ function BookingForm() {
       >
         <Row className="mb-3 w-100">
           <Col className="d-flex justify-content-center align-items-center">
-            <Form.label className="w-25 text-end">Name</Form.label>
+            <Form.Label className="w-25 text-end">Name</Form.Label>
             <Col className="ms-3 w-50">
               <Form.Control
                 type="text"
@@ -115,7 +115,7 @@ function BookingForm() {
         </Row>
         <Row className="mb-3 w-100">
           <Col className="d-flex justify-content-center align-items-center">
-            <Form.label className="w-25 text-end">Lastname</Form.label>
+            <Form.Label className="w-25 text-end">Lastname</Form.Label>
             <Col className="ms-3 w-50">
               <Form.Control
                 type="text"
@@ -133,25 +133,25 @@ function BookingForm() {
         </Row>
         <Row className="mb-3 w-100">
           <Col className="d-flex justify-content-center align-items-center">
-            <Form.label className="w-25 text-end">Email</Form.label>
+            <Form.Label className="w-25 text-end">Email</Form.Label>
             <Col className="ms-3 w-50">
               <Form.Control
-                type="nationality"
-                placeholder="Enter your nationality"
+                type="email"
+                placeholder="Enter your email"
                 className="ms-3 w-50"
-                value={nationality}
-                onChange={handleNationalityChange}
-                isInvalid={!!errors.nationality}
+                value={email}
+                onChange={handleEmailChange}
+                isInvalid={!!errors.email}
               />
               <Form.Control.Feedback type="invalid">
-                {errors.nationality}
+                {errors.email}
               </Form.Control.Feedback>
             </Col>
           </Col>
         </Row>
         <Row className="mb-3 w-100">
           <Col className="d-flex justify-content-center align-items-center">
-            <Form.label className="w-25 text-end">University</Form.label>
+            <Form.Label className="w-25 text-end">University</Form.Label>
             <Col className="ms-3 w-50">
               <Form.Control
                 type="text"
@@ -169,7 +169,7 @@ function BookingForm() {
         </Row>
         <Row className="mb-3 w-100">
           <Col className="d-flex justify-content-center align-items-center">
-            <Form.label className="w-25 text-end">Birth Date</Form.label>
+            <Form.Label className="w-25 text-end">Birth Date</Form.Label>
             <Col className="ms-3 w-50">
               <Form.Control
                 type="date"
@@ -187,7 +187,7 @@ function BookingForm() {
         </Row>
         <Row className="mb-3 w-100">
           <Col className="d-flex justify-content-center align-items-center">
-            <Form.label className="w-25 text-end">Interests</Form.label>
+            <Form.Label className="w-25 text-end">Interests</Form.Label>
             <Col className="ms-3 w-50">
               <Form.Select
                 value={interestsId}
@@ -208,7 +208,7 @@ function BookingForm() {
         </Row>
         <Row className="mb-3 w-100">
           <Col className="d-flex justify-content-center align-items-center">
-            <Form.label className="w-25 text-end">Room</Form.label>
+            <Form.Label className="w-25 text-end">Room</Form.Label>
             <Col className="ms-3 w-50">
               <Form.Select
                 value={roomId}
@@ -229,7 +229,7 @@ function BookingForm() {
         </Row>
         <Row className="mb-3 w-100">
           <Col className="d-flex justify-content-center align-items-center">
-            <Form.label className="w-25 text-end">Check-in</Form.label>
+            <Form.Label className="w-25 text-end">Check-in</Form.Label>
             <Col className="ms-3 w-50">
               <Form.Control
                 type="date"
@@ -247,7 +247,7 @@ function BookingForm() {
         </Row>
         <Row className="mb-3 w-100">
           <Col className="d-flex justify-content-center align-items-center">
-            <Form.label className="w-25 text-end">Check-out</Form.label>
+            <Form.Label className="w-25 text-end">Check-out</Form.Label>
             <Col className="ms-3 w-50">
               <Form.Control
                 type="date"
@@ -265,7 +265,7 @@ function BookingForm() {
         </Row>
         <Row className="mb-3 w-100">
           <Col className="d-flex justify-content-center align-items-center">
-            <Form.label className="w-25 text-end">Comments</Form.label>
+            <Form.Label className="w-25 text-end">Comments</Form.Label>
             <Col className="ms-3 w-50">
               <Form.Control
                 as="textarea"
