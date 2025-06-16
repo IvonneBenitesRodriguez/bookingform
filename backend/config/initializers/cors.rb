@@ -11,12 +11,12 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
     # Define all allowed origins here as a comma-separated list.
     # Check your React app's terminal output (when you run 'npm start')
     # to confirm the exact localhost port it's using (usually 3000).
-    origins 'http://localhost:3000', # Your local React dev server
-            'https://ivonnebenitesrodriguez.github.io' # Your GitHub Pages domain
+    origins "http://localhost:3007", # Your local React dev server
+            "https://ivonnebenitesrodriguez.github.io" # Your GitHub Pages domain
 
-    resource '*', # This applies the CORS settings to all paths on your API
+    resource "*", # This applies the CORS settings to all paths on your API
       headers: :any, # Allow any headers
-      methods: [:get, :post, :put, :patch, :delete, :options, :head], # Allow these HTTP methods
+      methods: [ :get, :post, :put, :patch, :delete, :options, :head ], # Allow these HTTP methods
       credentials: true # Allow sending of cookies/credentials (e.g., for user authentication)
   end
 
