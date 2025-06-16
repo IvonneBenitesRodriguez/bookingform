@@ -18,7 +18,7 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
     # For your deployed frontend on GitHub Pages:
     origins "https://ivonnebenitesrodriguez.github.io/bookingform/"
 
-    resource "*",
+    resource "*"
       headers: :any,
       methods: [ :get, :post, :put, :patch, :delete, :options ],
       credentials: true # Set to true if your frontend needs to send cookies/credentials (e.g., for user authentication)
