@@ -11,7 +11,7 @@ function BookingForm() {
   const [university, setUniversity] = useState('');
   const [birthDate, setBirthDate] = useState('');
   const [interestsId, setInterestsId] = useState(''); // This will hold the value from the select (e.g., "1", "2")
-  const [roomId, setRoomId] = useState('');           // This will hold the value from the select (e.g., "1", "2")
+  const [roomId, setRoomId] = useState(''); // This will hold the value from the select (e.g., "1", "2")
   const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
   const [comments, setComments] = useState('');
@@ -55,6 +55,7 @@ function BookingForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('Submit button clicked! handleSubmit function is running.');
     setMessage(''); // Clear previous success messages
     setErrors({}); // Clear previous form validation errors
 
@@ -67,20 +68,20 @@ function BookingForm() {
         const dataToSend = {
           // Rails expects the root key to be 'booking' (as per booking_params)
           booking: {
-            first_name: name,         // 'name' state maps to 'first_name' in Rails
-            last_name: lastname,      // 'lastname' state maps to 'last_name' in Rails
+            first_name: name, // 'name' state maps to 'first_name' in Rails
+            last_name: lastname, // 'lastname' state maps to 'last_name' in Rails
             email: email,
             nationality: nationality,
             university: university,
-            birth_date: birthDate,    // 'birthDate' state maps to 'birth_date' in Rails
+            birth_date: birthDate, // 'birthDate' state maps to 'birth_date' in Rails
             // Assuming 'interest' and 'room_type' are string fields in Rails.
             // If they are foreign keys (e.g., interest_id, room_id),
             // you'd need to adjust your Rails model/controller to accept those IDs,
             // and send them as `interest_id: interestsId` and `room_id: roomId`.
             // For now, let's map the selected value (e.g., "1", "2", "Luxus Room") to the string fields.
-            interest: interestsId,    // 'interestsId' maps to 'interest'
-            room_type: roomId,        // 'roomId' maps to 'room_type'
-            arrival_date: checkIn,    // 'checkIn' maps to 'arrival_date'
+            interest: interestsId, // 'interestsId' maps to 'interest'
+            room_type: roomId, // 'roomId' maps to 'room_type'
+            arrival_date: checkIn, // 'checkIn' maps to 'arrival_date'
             departure_date: checkOut, // 'checkOut' maps to 'departure_date'
             comments: comments,
           },
@@ -92,15 +93,18 @@ function BookingForm() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json', // --- IMPROVEMENT 3: Indicate preferred response type ---
+            Accept: 'application/json', // --- IMPROVEMENT 3: Indicate preferred response type ---
           },
           body: JSON.stringify(dataToSend),
         });
 
         const result = await response.json();
 
-        if (response.ok) { // `response.ok` is true for 2xx status codes
-          setMessage('Booking submitted successfully! ID: ' + result.booking.id);
+        if (response.ok) {
+          // `response.ok` is true for 2xx status codes
+          setMessage(
+            'Booking submitted successfully! ID: ' + result.booking.id
+          );
           // --- IMPROVEMENT 4: Optional: Clear form on success ---
           setName('');
           setLastname('');
@@ -119,7 +123,7 @@ function BookingForm() {
           if (result.errors) {
             // Rails validation errors are typically in `result.errors` object
             const backendErrors = Object.keys(result.errors)
-              .map(key => `${key} ${result.errors[key].join(', ')}`)
+              .map((key) => `${key} ${result.errors[key].join(', ')}`)
               .join('\n'); // Join errors with newlines for readability
             errorMessage = `Booking failed:\n${backendErrors}`;
             // If you want to show these errors under specific fields, you'd update your `errors` state here
@@ -132,7 +136,9 @@ function BookingForm() {
         }
       } catch (error) {
         console.error('Network Error or problem parsing response:', error);
-        alert('Server Error! Please check your network connection and ensure the backend server is running on http://localhost:3001.');
+        alert(
+          'Server Error! Please check your network connection and ensure the backend server is running on http://localhost:3001.'
+        );
       }
     }
   };
@@ -140,9 +146,17 @@ function BookingForm() {
   return (
     <Container>
       {/* Display general success/error messages */}
-      {message && <p style={{ color: 'green', fontWeight: 'bold', textAlign: 'center' }}>{message}</p>}
+      {message && (
+        <p style={{ color: 'green', fontWeight: 'bold', textAlign: 'center' }}>
+          {message}
+        </p>
+      )}
       {/* If `errors` state is used for general error, display here. Otherwise, rely on inline feedback. */}
-      {errors.general && <p style={{ color: 'red', fontWeight: 'bold', textAlign: 'center' }}>{errors.general}</p>}
+      {errors.general && (
+        <p style={{ color: 'red', fontWeight: 'bold', textAlign: 'center' }}>
+          {errors.general}
+        </p>
+      )}
 
       <Form
         className="pt-4 d-flex justify-content-center flex-column"
@@ -254,8 +268,10 @@ function BookingForm() {
                            you might need to adjust your Rails backend.
                            For now, these values ("1", "2", etc.) will be sent as strings. */}
                 <option value="Local Gastronomy">Local Gastronomy</option>
-                <option value="Local Trips">Local Trips</text>
-                <option value="Out-door Sport Activities">Out-door Sport Activities</option>
+                <option value="Local Trips">Local Trips</option>
+                <option value="Out-door Sport Activities">
+                  Out-door Sport Activities
+                </option>
                 <option value="Spanish learning">Spanish learning</option>
               </Form.Select>
               <Form.Control.Feedback type="invalid">
