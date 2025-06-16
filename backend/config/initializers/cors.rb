@@ -8,20 +8,16 @@
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    # During local development, your React app runs on a specific port (usually 3000 or 3001)
-    # Make sure this matches the actual URL where your React development server is running.
-    # If your React app is on localhost:3000, use 'http://localhost:3000'
-    # If your React app is on localhost:3001, use 'http://localhost:3001'
-    # Check your React app's terminal output when you run 'npm start' to confirm the port.
-    origins "http://localhost:3000" # <--- IMPORTANT: Adjust this if your React dev server uses a different port!
+    # Define all allowed origins here as a comma-separated list.
+    # Check your React app's terminal output (when you run 'npm start')
+    # to confirm the exact localhost port it's using (usually 3000).
+    origins 'http://localhost:3000', # Your local React dev server
+            'https://ivonnebenitesrodriguez.github.io' # Your GitHub Pages domain
 
-    # For your deployed frontend on GitHub Pages:
-    origins "https://ivonnebenitesrodriguez.github.io/bookingform/"
-
-    resource "*"
-      headers: :any,
-      methods: [ :get, :post, :put, :patch, :delete, :options ],
-      credentials: true # Set to true if your frontend needs to send cookies/credentials (e.g., for user authentication)
+    resource '*', # This applies the CORS settings to all paths on your API
+      headers: :any, # Allow any headers
+      methods: [:get, :post, :put, :patch, :delete, :options, :head], # Allow these HTTP methods
+      credentials: true # Allow sending of cookies/credentials (e.g., for user authentication)
   end
 
   # You can add more 'allow' blocks for other origins if needed
