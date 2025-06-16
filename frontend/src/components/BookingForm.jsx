@@ -3,6 +3,7 @@ import Form from 'react-bootstrap/Form';
 import { Row, Col, Container } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 
+// Define initial state outside the component to prevent re-creation on every render
 const INITIAL_FORM_STATE = {
   name: '',
   lastname: '',
@@ -10,8 +11,8 @@ const INITIAL_FORM_STATE = {
   nationality: '',
   university: '',
   birthDate: '',
-  interestsId: '',
-  roomId: '',
+  interestsId: '', // Represents the selected interest
+  roomId: '', // Represents the selected room
   checkIn: '',
   checkOut: '',
   comments: '',
@@ -23,6 +24,7 @@ function BookingForm() {
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Handles changes for all form inputs using the 'name' attribute
   const handleChange = useCallback(
     (e) => {
       const { name, value } = e.target;
@@ -30,6 +32,7 @@ function BookingForm() {
         ...prevData,
         [name]: value,
       }));
+      // Clear specific error for the field being changed
       if (errors[name]) {
         setErrors((prevErrors) => {
           const newErrors = { ...prevErrors };
@@ -38,9 +41,10 @@ function BookingForm() {
         });
       }
     },
-    [errors]
+    [errors] // Dependency array: ensures the latest 'errors' state is used for clearing errors
   );
 
+  // Client-side validation logic
   const validateForm = useCallback(() => {
     const newErrors = {};
 
@@ -52,15 +56,19 @@ function BookingForm() {
       newErrors.email = 'Email is invalid';
     }
     if (!formData.nationality)
-      newErrors.nationality = 'Nationality is required';
+      newErrors.nationality = 'Nationality is required'; // This was the last identified error!
     if (!formData.university)
       newErrors.university = 'University name is required';
     if (!formData.birthDate) newErrors.birthDate = 'Birth date is required';
     if (!formData.interestsId)
+      // This checks if a non-empty option was selected
       newErrors.interestsId = 'Please select your interests';
-    if (!formData.roomId) newErrors.roomId = 'Please select a room';
+    if (!formData.roomId)
+      // This checks if a non-empty option was selected
+      newErrors.roomId = 'Please select a room';
     if (!formData.checkIn) newErrors.checkIn = 'Check-in date is required';
     if (!formData.checkOut) newErrors.checkOut = 'Check-out date is required';
+    // Date comparison validation
     if (
       formData.checkIn &&
       formData.checkOut &&
@@ -69,27 +77,31 @@ function BookingForm() {
       newErrors.checkOut = 'Check-out date must be after check-in date';
     }
 
-    // --- IMPORTANT CHANGE HERE: Log newErrors directly BEFORE setting state ---
+    // --- DEBUG LOG: Shows what errors were found during this validation run ---
     console.log('Errors found during validation:', newErrors);
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  }, [formData]);
+    setErrors(newErrors); // Update the errors state
+    return Object.keys(newErrors).length === 0; // Return true if no errors
+  }, [formData]); // Dependency array: ensures the latest 'formData' is used for validation
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMessage('');
-    setErrors({}); // Clear previous form validation errors
-    setIsSubmitting(true);
+    e.preventDefault(); // Prevent default form submission behavior
+    setMessage(''); // Clear any previous general messages
+    setErrors({}); // Clear previous validation errors from the form fields
+    setIsSubmitting(true); // Set submitting state for UI feedback (e.g., disable button)
 
     if (validateForm()) {
+      // Run client-side validation
+      // --- DEBUG LOGS: These will only show if client-side validation passes ---
       console.log(
         'Form is valid according to client-side validation. Proceeding to submit data.'
       );
       console.log('Final data to send:', formData);
 
       try {
-        const API_URL = 'http://localhost:3001/api/v1/bookings';
+        const API_URL = 'http://localhost:3001/api/v1/bookings'; // Your Rails API endpoint
+
+        // Prepare data to send to Rails backend (snake_case keys for Rails)
         const dataToSend = {
           booking: {
             first_name: formData.name,
@@ -98,76 +110,79 @@ function BookingForm() {
             nationality: formData.nationality,
             university: formData.university,
             birth_date: formData.birthDate,
-            interest: formData.interestsId,
-            room_type: formData.roomId,
+            interest: formData.interestsId, // Map to 'interest' or 'interest_id' as per your Rails model
+            room_type: formData.roomId, // Map to 'room_type' or 'room_id' as per your Rails model
             arrival_date: formData.checkIn,
             departure_date: formData.checkOut,
             comments: formData.comments,
           },
         };
 
-        console.log('Sending data:', dataToSend);
+        console.log('Sending data:', dataToSend); // Confirm data structure before fetch
 
         const response = await fetch(API_URL, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
+            'Content-Type': 'application/json', // Indicate JSON payload
+            Accept: 'application/json', // Expect JSON response
           },
-          body: JSON.stringify(dataToSend),
+          body: JSON.stringify(dataToSend), // Convert JS object to JSON string
         });
 
-        const result = await response.json();
+        const result = await response.json(); // Parse the JSON response from the server
 
         if (response.ok) {
+          // Check if the response status is 2xx (success)
           console.log('Booking submitted successfully!', result);
-          setFormData(INITIAL_FORM_STATE);
+          setFormData(INITIAL_FORM_STATE); // Reset form fields on successful submission
           setMessage(
             'Your information has been sent successfully! Booking ID: ' +
               result.booking.id
           );
-          setTimeout(() => setMessage(''), 5000);
+          setTimeout(() => setMessage(''), 5000); // Clear success message after 5 seconds
         } else {
+          // Handle API errors (e.g., 422 Unprocessable Entity for validation errors)
           let backendErrorMessage = 'Booking failed: Unknown error.';
           if (response.status === 422 && result.errors) {
+            // If Rails returns validation errors, format them for display
             const backendErrors = Object.keys(result.errors)
               .map((key) => `${key}: ${result.errors[key].join(', ')}`)
               .join('\n');
             backendErrorMessage = `Please correct the following issues:\n${backendErrors}`;
-            setErrors(result.errors);
+            // Optional: Set specific errors to display under fields from backend
+            setErrors(result.errors); // Assuming result.errors matches your `errors` state keys
           } else if (result.error) {
+            // General error message from backend
             backendErrorMessage = result.error;
           } else {
             backendErrorMessage = `Booking failed with status ${response.status}.`;
           }
-          setMessage(`Error: ${backendErrorMessage}`);
-          setTimeout(() => setMessage(''), 7000);
-          console.error('Backend errors:', result);
+          setMessage(`Error: ${backendErrorMessage}`); // Display backend error
+          setTimeout(() => setMessage(''), 7000); // Clear error message after 7 seconds
+          console.error('Backend errors:', result); // Log full backend error for debugging
         }
       } catch (error) {
+        // Handle network errors (e.g., server not running, no internet)
         console.error('Network Error or problem parsing response:', error);
         setMessage(
           'Network error: Please check your connection and ensure the backend server is running.'
         );
-        setTimeout(() => {
-          setMessage('');
-        }, 7000);
+        setTimeout(() => setMessage(''), 7000);
       } finally {
-        setIsSubmitting(false);
+        setIsSubmitting(false); // Always reset submitting state
       }
     } else {
+      // If client-side validation fails, stop loading and display message
       setIsSubmitting(false);
       setMessage('Please fix the errors in the form.');
       setTimeout(() => setMessage(''), 5000);
-
-      // --- This log is less useful now, as the one inside validateForm is more accurate ---
-      // console.log("Client-side validation failed. Errors:", errors);
     }
   };
 
+  // Memoized options for "Interests" dropdown to optimize performance
   const interestOptions = useMemo(
     () => [
-      { value: '', label: 'Select your interests' },
+      { value: '', label: 'Select your interests' }, // Default "empty" option
       { value: 'Local Gastronomy', label: 'Local Gastronomy' },
       { value: 'Local Trips', label: 'Local Trips' },
       {
@@ -179,9 +194,10 @@ function BookingForm() {
     []
   );
 
+  // Memoized options for "Room" dropdown to optimize performance
   const roomOptions = useMemo(
     () => [
-      { value: '', label: 'Select a room' },
+      { value: '', label: 'Select a room' }, // Default "empty" option
       { value: 'Luxus Room', label: 'Luxus Room' },
       { value: 'Affordable Room', label: 'Affordable Room' },
       { value: 'Tied-Budget Room', label: 'Tied-Budget Room' },
@@ -192,6 +208,7 @@ function BookingForm() {
 
   return (
     <Container>
+      {/* General message display (success or error) */}
       {message && (
         <p
           style={{
@@ -209,6 +226,7 @@ function BookingForm() {
         className="pt-4 d-flex justify-content-center flex-column"
         onSubmit={handleSubmit}
       >
+        {/* Name Field */}
         <Row className="mb-3 w-100">
           <Col className="d-flex justify-content-center align-items-center">
             <Form.Label className="w-25 text-end">Name</Form.Label>
@@ -217,17 +235,19 @@ function BookingForm() {
                 type="text"
                 placeholder="Enter your name"
                 className="ms-3 w-50"
-                name="name"
+                name="name" // Matches formData.name
                 value={formData.name}
                 onChange={handleChange}
-                isInvalid={!!errors.name}
+                isInvalid={!!errors.name} // Show invalid style if error exists
               />
               <Form.Control.Feedback type="invalid">
-                {errors.name}
+                {errors.name} {/* Display error message */}
               </Form.Control.Feedback>
             </Col>
           </Col>
         </Row>
+
+        {/* Lastname Field */}
         <Row className="mb-3 w-100">
           <Col className="d-flex justify-content-center align-items-center">
             <Form.Label className="w-25 text-end">Lastname</Form.Label>
@@ -236,7 +256,7 @@ function BookingForm() {
                 type="text"
                 placeholder="Enter your lastname"
                 className="ms-3 w-50"
-                name="lastname"
+                name="lastname" // Matches formData.lastname
                 value={formData.lastname}
                 onChange={handleChange}
                 isInvalid={!!errors.lastname}
@@ -247,6 +267,8 @@ function BookingForm() {
             </Col>
           </Col>
         </Row>
+
+        {/* Email Field */}
         <Row className="mb-3 w-100">
           <Col className="d-flex justify-content-center align-items-center">
             <Form.Label className="w-25 text-end">Email</Form.Label>
@@ -255,7 +277,7 @@ function BookingForm() {
                 type="email"
                 placeholder="Enter your email"
                 className="ms-3 w-50"
-                name="email"
+                name="email" // Matches formData.email
                 value={formData.email}
                 onChange={handleChange}
                 isInvalid={!!errors.email}
@@ -266,6 +288,29 @@ function BookingForm() {
             </Col>
           </Col>
         </Row>
+
+        {/* Nationality Field (The one we were debugging) */}
+        <Row className="mb-3 w-100">
+          <Col className="d-flex justify-content-center align-items-center">
+            <Form.Label className="w-25 text-end">Nationality</Form.Label>
+            <Col className="ms-3 w-50">
+              <Form.Control
+                type="text"
+                placeholder="Enter your nationality"
+                className="ms-3 w-50"
+                name="nationality" // Matches formData.nationality
+                value={formData.nationality}
+                onChange={handleChange}
+                isInvalid={!!errors.nationality}
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.nationality}
+              </Form.Control.Feedback>
+            </Col>
+          </Col>
+        </Row>
+
+        {/* University Field */}
         <Row className="mb-3 w-100">
           <Col className="d-flex justify-content-center align-items-center">
             <Form.Label className="w-25 text-end">University</Form.Label>
@@ -274,7 +319,7 @@ function BookingForm() {
                 type="text"
                 placeholder="Enter your university"
                 className="ms-3 w-50"
-                name="university"
+                name="university" // Matches formData.university
                 value={formData.university}
                 onChange={handleChange}
                 isInvalid={!!errors.university}
@@ -285,6 +330,8 @@ function BookingForm() {
             </Col>
           </Col>
         </Row>
+
+        {/* Birth Date Field */}
         <Row className="mb-3 w-100">
           <Col className="d-flex justify-content-center align-items-center">
             <Form.Label className="w-25 text-end">Birth Date</Form.Label>
@@ -293,7 +340,7 @@ function BookingForm() {
                 type="date"
                 placeholder="Enter your birth date"
                 className="ms-3 w-50"
-                name="birthDate"
+                name="birthDate" // Matches formData.birthDate
                 value={formData.birthDate}
                 onChange={handleChange}
                 isInvalid={!!errors.birthDate}
@@ -304,17 +351,20 @@ function BookingForm() {
             </Col>
           </Col>
         </Row>
+
+        {/* Interests Select Field */}
         <Row className="mb-3 w-100">
           <Col className="d-flex justify-content-center align-items-center">
             <Form.Label className="w-25 text-end">Interests</Form.Label>
             <Col className="ms-3 w-50">
               <Form.Select
-                name="interestsId"
+                name="interestsId" // Matches formData.interestsId
                 value={formData.interestsId}
                 onChange={handleChange}
                 isInvalid={!!errors.interestsId}
                 className="w-50 ms-3"
               >
+                {/* Render options dynamically from interestOptions */}
                 {interestOptions.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -327,17 +377,20 @@ function BookingForm() {
             </Col>
           </Col>
         </Row>
+
+        {/* Room Select Field */}
         <Row className="mb-3 w-100">
           <Col className="d-flex justify-content-center align-items-center">
             <Form.Label className="w-25 text-end">Room</Form.Label>
             <Col className="ms-3 w-50">
               <Form.Select
-                name="roomId"
+                name="roomId" // Matches formData.roomId
                 value={formData.roomId}
                 onChange={handleChange}
                 isInvalid={!!errors.roomId}
                 className="w-50 ms-3"
               >
+                {/* Render options dynamically from roomOptions */}
                 {roomOptions.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -350,6 +403,8 @@ function BookingForm() {
             </Col>
           </Col>
         </Row>
+
+        {/* Check-in Date Field */}
         <Row className="mb-3 w-100">
           <Col className="d-flex justify-content-center align-items-center">
             <Form.Label className="w-25 text-end">Check-in</Form.Label>
@@ -358,7 +413,7 @@ function BookingForm() {
                 type="date"
                 placeholder="Enter check-in date"
                 className="ms-3 w-50"
-                name="checkIn"
+                name="checkIn" // Matches formData.checkIn
                 value={formData.checkIn}
                 onChange={handleChange}
                 isInvalid={!!errors.checkIn}
@@ -369,6 +424,8 @@ function BookingForm() {
             </Col>
           </Col>
         </Row>
+
+        {/* Check-out Date Field */}
         <Row className="mb-3 w-100">
           <Col className="d-flex justify-content-center align-items-center">
             <Form.Label className="w-25 text-end">Check-out</Form.Label>
@@ -377,7 +434,7 @@ function BookingForm() {
                 type="date"
                 placeholder="Enter check-out date"
                 className="ms-3 w-50"
-                name="checkOut"
+                name="checkOut" // Matches formData.checkOut
                 value={formData.checkOut}
                 onChange={handleChange}
                 isInvalid={!!errors.checkOut}
@@ -388,16 +445,18 @@ function BookingForm() {
             </Col>
           </Col>
         </Row>
+
+        {/* Comments Textarea Field */}
         <Row className="mb-3 w-100">
           <Col className="d-flex justify-content-center align-items-center">
             <Form.Label className="w-25 text-end">Comments</Form.Label>
             <Col className="ms-3 w-50">
               <Form.Control
-                as="textarea"
+                as="textarea" // Renders as a textarea
                 rows={3}
                 placeholder="Enter any additional comments"
                 className="ms-3 w-50"
-                name="comments"
+                name="comments" // Matches formData.comments
                 value={formData.comments}
                 onChange={handleChange}
               />
@@ -405,14 +464,15 @@ function BookingForm() {
           </Col>
         </Row>
 
+        {/* Submit Button */}
         <Row className="w-100">
           <Col className="d-flex justify-content-center">
             <Button
               as="input"
               type="submit"
               className="bg-primary"
-              value={isSubmitting ? 'Submitting...' : 'Submit'}
-              disabled={isSubmitting}
+              value={isSubmitting ? 'Submitting...' : 'Submit'} // Dynamic text while submitting
+              disabled={isSubmitting} // Disable button to prevent multiple submissions
             />
           </Col>
         </Row>
