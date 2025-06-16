@@ -50,10 +50,6 @@ function BookingForm() {
     [errors]
   ); // Dependency array includes errors to ensure latest errors are accessed
 
-  // Old individual handlers (like handleNameChange, etc.) are no longer needed
-  // if you adopt the single formData object approach.
-  // Example: <Form.Control name="name" value={formData.name} onChange={handleChange} />
-
   const validateForm = useCallback(() => {
     const newErrors = {};
 
@@ -71,8 +67,8 @@ function BookingForm() {
       newErrors.university = 'University name is required';
     if (!formData.birthDate) newErrors.birthDate = 'Birth date is required';
     if (!formData.interestsId)
-      newErrors.interestsId = 'Please select your interests';
-    if (!formData.roomId) newErrors.roomId = 'Please select a room';
+      newErrors.interestsId = 'Please select your interests'; // Likely culprit if message persists
+    if (!formData.roomId) newErrors.roomId = 'Please select a room'; // Likely culprit if message persists
     if (!formData.checkIn) newErrors.checkIn = 'Check-in date is required';
     if (!formData.checkOut) newErrors.checkOut = 'Check-out date is required';
     // Add date comparison validation
@@ -95,6 +91,12 @@ function BookingForm() {
     setIsSubmitting(true); // Set loading state
 
     if (validateForm()) {
+      // --- DEBUG LOGS START ---
+      console.log(
+        'Form is valid according to client-side validation. Proceeding to submit data.'
+      );
+      console.log('Final data to send:', formData);
+      // --- DEBUG LOGS END ---
       try {
         const API_URL = 'http://localhost:3001/api/v1/bookings';
 
@@ -160,7 +162,9 @@ function BookingForm() {
         setMessage(
           'Network error: Please check your connection and ensure the backend server is running.'
         );
-        setTimeout(() => setMessage(''), 7000);
+        setTimeout(() => {
+          setMessage('');
+        }, 7000);
       } finally {
         setIsSubmitting(false); // Always stop loading state
       }
@@ -169,13 +173,17 @@ function BookingForm() {
       setIsSubmitting(false);
       setMessage('Please fix the errors in the form.');
       setTimeout(() => setMessage(''), 5000);
+
+      // --- DEBUG LOGS START ---
+      console.log('Client-side validation failed. Errors:', errors);
+      // --- DEBUG LOGS END ---
     }
   };
 
   // Memoize options to prevent unnecessary re-renders of select elements
   const interestOptions = useMemo(
     () => [
-      { value: '', label: 'Select your interests' },
+      { value: '', label: 'Select your interests' }, // Keep value="" for default empty state
       { value: 'Local Gastronomy', label: 'Local Gastronomy' },
       { value: 'Local Trips', label: 'Local Trips' },
       {
@@ -189,7 +197,7 @@ function BookingForm() {
 
   const roomOptions = useMemo(
     () => [
-      { value: '', label: 'Select a room' },
+      { value: '', label: 'Select a room' }, // Keep value="" for default empty state
       { value: 'Luxus Room', label: 'Luxus Room' },
       { value: 'Affordable Room', label: 'Affordable Room' },
       { value: 'Tied-Budget Room', label: 'Tied-Budget Room' },
