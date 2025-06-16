@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'; // Make sure useState is imported
 import Form from 'react-bootstrap/Form';
 import { Row, Col, Container } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
@@ -10,14 +10,14 @@ function BookingForm() {
   const [nationality, setNationality] = useState('');
   const [university, setUniversity] = useState('');
   const [birthDate, setBirthDate] = useState('');
-  const [interestsId, setInterestsId] = useState(''); // This will hold the value from the select (e.g., "1", "2")
-  const [roomId, setRoomId] = useState(''); // This will hold the value from the select (e.g., "1", "2")
+  const [interestsId, setInterestsId] = useState('');
+  const [roomId, setRoomId] = useState('');
   const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
   const [comments, setComments] = useState('');
 
   const [errors, setErrors] = useState({});
-  const [message, setMessage] = useState(''); // For success messages
+  const [message, setMessage] = useState(''); // Already exists, will be used for success
 
   const handleNameChange = (e) => setName(e.target.value);
   const handleLastnameChange = (e) => setLastname(e.target.value);
@@ -56,44 +56,36 @@ function BookingForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log('Submit button clicked! handleSubmit function is running.');
-    setMessage(''); // Clear previous success messages
+    setMessage(''); // Clear previous messages (success or error)
     setErrors({}); // Clear previous form validation errors
 
     if (validateForm()) {
       try {
-        // --- IMPROVEMENT 1: Correct API URL ---
         const API_URL = 'http://localhost:3001/api/v1/bookings';
 
-        // --- IMPROVEMENT 2: Correct Data Structure and Field Names ---
         const dataToSend = {
-          // Rails expects the root key to be 'booking' (as per booking_params)
           booking: {
-            first_name: name, // 'name' state maps to 'first_name' in Rails
-            last_name: lastname, // 'lastname' state maps to 'last_name' in Rails
+            first_name: name,
+            last_name: lastname,
             email: email,
             nationality: nationality,
             university: university,
-            birth_date: birthDate, // 'birthDate' state maps to 'birth_date' in Rails
-            // Assuming 'interest' and 'room_type' are string fields in Rails.
-            // If they are foreign keys (e.g., interest_id, room_id),
-            // you'd need to adjust your Rails model/controller to accept those IDs,
-            // and send them as `interest_id: interestsId` and `room_id: roomId`.
-            // For now, let's map the selected value (e.g., "1", "2", "Luxus Room") to the string fields.
-            interest: interestsId, // 'interestsId' maps to 'interest'
-            room_type: roomId, // 'roomId' maps to 'room_type'
-            arrival_date: checkIn, // 'checkIn' maps to 'arrival_date'
-            departure_date: checkOut, // 'checkOut' maps to 'departure_date'
+            birth_date: birthDate,
+            interest: interestsId,
+            room_type: roomId,
+            arrival_date: checkIn,
+            departure_date: checkOut,
             comments: comments,
           },
         };
 
-        console.log('Sending data:', dataToSend); // --- DEBUGGING: See what you're sending ---
+        console.log('Sending data:', dataToSend);
 
         const response = await fetch(API_URL, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Accept: 'application/json', // --- IMPROVEMENT 3: Indicate preferred response type ---
+            Accept: 'application/json',
           },
           body: JSON.stringify(dataToSend),
         });
@@ -101,11 +93,8 @@ function BookingForm() {
         const result = await response.json();
 
         if (response.ok) {
-          // `response.ok` is true for 2xx status codes
-          setMessage(
-            'Booking submitted successfully! ID: ' + result.booking.id
-          );
-          // --- IMPROVEMENT 4: Optional: Clear form on success ---
+          console.log('Booking submitted successfully!');
+          // --- NEW: Clear form fields by resetting state to empty strings ---
           setName('');
           setLastname('');
           setEmail('');
@@ -117,28 +106,41 @@ function BookingForm() {
           setCheckIn('');
           setCheckOut('');
           setComments('');
+          // --- NEW: Set success message ---
+          setMessage(
+            'Your information has been sent successfully! Booking ID: ' +
+              result.booking.id
+          );
+          // Optional: Make the message disappear after 5 seconds
+          setTimeout(() => {
+            setMessage('');
+          }, 5000);
         } else {
-          // --- IMPROVEMENT 5: Better error handling for backend validation errors ---
           let errorMessage = 'Booking failed: Unknown error.';
           if (result.errors) {
-            // Rails validation errors are typically in `result.errors` object
             const backendErrors = Object.keys(result.errors)
               .map((key) => `${key} ${result.errors[key].join(', ')}`)
-              .join('\n'); // Join errors with newlines for readability
+              .join('\n');
             errorMessage = `Booking failed:\n${backendErrors}`;
-            // If you want to show these errors under specific fields, you'd update your `errors` state here
-            // setErrors(prevErrors => ({ ...prevErrors, ...result.errors }));
           } else if (result.error) {
             errorMessage = `Booking failed: ${result.error}`;
           }
-          alert(errorMessage);
-          console.error('Backend errors:', result); // Log the full result for debugging
+          // --- MODIFIED: Use the 'message' state for errors too ---
+          setMessage(`Error: ${errorMessage}`);
+          setTimeout(() => {
+            setMessage('');
+          }, 5000);
+          console.error('Backend errors:', result);
         }
       } catch (error) {
         console.error('Network Error or problem parsing response:', error);
-        alert(
+        // --- MODIFIED: Use the 'message' state for network errors ---
+        setMessage(
           'Server Error! Please check your network connection and ensure the backend server is running on http://localhost:3001.'
         );
+        setTimeout(() => {
+          setMessage('');
+        }, 5000);
       }
     }
   };
@@ -147,7 +149,13 @@ function BookingForm() {
     <Container>
       {/* Display general success/error messages */}
       {message && (
-        <p style={{ color: 'green', fontWeight: 'bold', textAlign: 'center' }}>
+        <p
+          style={{
+            color: message.startsWith('Error') ? 'red' : 'green',
+            fontWeight: 'bold',
+            textAlign: 'center',
+          }}
+        >
           {message}
         </p>
       )}
@@ -263,10 +271,6 @@ function BookingForm() {
                 className="w-50 ms-3"
               >
                 <option value="">Select your interests</option>
-                {/* Note: The 'value' attribute here will be sent as 'interest'.
-                           If your Rails 'interest' column is an integer ID,
-                           you might need to adjust your Rails backend.
-                           For now, these values ("1", "2", etc.) will be sent as strings. */}
                 <option value="Local Gastronomy">Local Gastronomy</option>
                 <option value="Local Trips">Local Trips</option>
                 <option value="Out-door Sport Activities">
@@ -291,7 +295,6 @@ function BookingForm() {
                 className="w-50 ms-3"
               >
                 <option value="">Select a room</option>
-                {/* Similar note for 'room_type' values */}
                 <option value="Luxus Room">Luxus Room</option>
                 <option value="Affordable Room">Affordable Room</option>
                 <option value="Tied-Budget Room">Tied-Budget Room</option>
