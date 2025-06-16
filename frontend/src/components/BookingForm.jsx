@@ -1,10 +1,8 @@
-import React, { useState, useCallback, useMemo } from 'react'; // Added useCallback and useMemo for potential optimization
+import React, { useState, useCallback, useMemo } from 'react';
 import Form from 'react-bootstrap/Form';
 import { Row, Col, Container } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 
-// Define initial state outside the component to prevent re-creation on every render
-// This is good practice when initial state is complex and doesn't depend on props.
 const INITIAL_FORM_STATE = {
   name: '',
   lastname: '',
@@ -20,17 +18,11 @@ const INITIAL_FORM_STATE = {
 };
 
 function BookingForm() {
-  // Using a single state object for form data makes it more manageable
-  // and reduces the number of useState calls.
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
-
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false); // New state for submission loading indicator
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Centralized handleChange for a single formData object
-  // Uses useCallback for memoization, which can be useful for performance
-  // if this handler was passed down to many child components.
   const handleChange = useCallback(
     (e) => {
       const { name, value } = e.target;
@@ -38,7 +30,6 @@ function BookingForm() {
         ...prevData,
         [name]: value,
       }));
-      // Clear error for the field being changed as user types
       if (errors[name]) {
         setErrors((prevErrors) => {
           const newErrors = { ...prevErrors };
@@ -48,12 +39,11 @@ function BookingForm() {
       }
     },
     [errors]
-  ); // Dependency array includes errors to ensure latest errors are accessed
+  );
 
   const validateForm = useCallback(() => {
     const newErrors = {};
 
-    // Use formData directly for validation
     if (!formData.name) newErrors.name = 'Name is required';
     if (!formData.lastname) newErrors.lastname = 'Lastname is required';
     if (!formData.email) {
@@ -67,11 +57,10 @@ function BookingForm() {
       newErrors.university = 'University name is required';
     if (!formData.birthDate) newErrors.birthDate = 'Birth date is required';
     if (!formData.interestsId)
-      newErrors.interestsId = 'Please select your interests'; // Likely culprit if message persists
-    if (!formData.roomId) newErrors.roomId = 'Please select a room'; // Likely culprit if message persists
+      newErrors.interestsId = 'Please select your interests';
+    if (!formData.roomId) newErrors.roomId = 'Please select a room';
     if (!formData.checkIn) newErrors.checkIn = 'Check-in date is required';
     if (!formData.checkOut) newErrors.checkOut = 'Check-out date is required';
-    // Add date comparison validation
     if (
       formData.checkIn &&
       formData.checkOut &&
@@ -80,36 +69,37 @@ function BookingForm() {
       newErrors.checkOut = 'Check-out date must be after check-in date';
     }
 
+    // --- IMPORTANT CHANGE HERE: Log newErrors directly BEFORE setting state ---
+    console.log('Errors found during validation:', newErrors);
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }, [formData]); // Dependency array includes formData to ensure latest data is accessed
+  }, [formData]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage(''); // Clear previous messages
+    setMessage('');
     setErrors({}); // Clear previous form validation errors
-    setIsSubmitting(true); // Set loading state
+    setIsSubmitting(true);
 
     if (validateForm()) {
-      // --- DEBUG LOGS START ---
       console.log(
         'Form is valid according to client-side validation. Proceeding to submit data.'
       );
       console.log('Final data to send:', formData);
-      // --- DEBUG LOGS END ---
+
       try {
         const API_URL = 'http://localhost:3001/api/v1/bookings';
-
         const dataToSend = {
           booking: {
-            first_name: formData.name, // Map form state to Rails params
+            first_name: formData.name,
             last_name: formData.lastname,
             email: formData.email,
             nationality: formData.nationality,
             university: formData.university,
             birth_date: formData.birthDate,
-            interest: formData.interestsId, // Adjust if your Rails expects interest_id
-            room_type: formData.roomId, // Adjust if your Rails expects room_id
+            interest: formData.interestsId,
+            room_type: formData.roomId,
             arrival_date: formData.checkIn,
             departure_date: formData.checkOut,
             comments: formData.comments,
@@ -131,30 +121,27 @@ function BookingForm() {
 
         if (response.ok) {
           console.log('Booking submitted successfully!', result);
-          setFormData(INITIAL_FORM_STATE); // Reset form to initial state
+          setFormData(INITIAL_FORM_STATE);
           setMessage(
             'Your information has been sent successfully! Booking ID: ' +
               result.booking.id
           );
           setTimeout(() => setMessage(''), 5000);
         } else {
-          // Improved error handling:
           let backendErrorMessage = 'Booking failed: Unknown error.';
           if (response.status === 422 && result.errors) {
-            // Typical Rails validation error status is 422 Unprocessable Entity
             const backendErrors = Object.keys(result.errors)
               .map((key) => `${key}: ${result.errors[key].join(', ')}`)
               .join('\n');
             backendErrorMessage = `Please correct the following issues:\n${backendErrors}`;
-            // Optional: Set specific errors to display under fields
-            setErrors(result.errors); // Assuming result.errors structure matches your `errors` state
+            setErrors(result.errors);
           } else if (result.error) {
             backendErrorMessage = result.error;
           } else {
             backendErrorMessage = `Booking failed with status ${response.status}.`;
           }
           setMessage(`Error: ${backendErrorMessage}`);
-          setTimeout(() => setMessage(''), 7000); // Give users more time to read errors
+          setTimeout(() => setMessage(''), 7000);
           console.error('Backend errors:', result);
         }
       } catch (error) {
@@ -166,24 +153,21 @@ function BookingForm() {
           setMessage('');
         }, 7000);
       } finally {
-        setIsSubmitting(false); // Always stop loading state
+        setIsSubmitting(false);
       }
     } else {
-      // If client-side validation fails, stop loading and show client-side errors
       setIsSubmitting(false);
       setMessage('Please fix the errors in the form.');
       setTimeout(() => setMessage(''), 5000);
 
-      // --- DEBUG LOGS START ---
-      console.log('Client-side validation failed. Errors:', errors);
-      // --- DEBUG LOGS END ---
+      // --- This log is less useful now, as the one inside validateForm is more accurate ---
+      // console.log("Client-side validation failed. Errors:", errors);
     }
   };
 
-  // Memoize options to prevent unnecessary re-renders of select elements
   const interestOptions = useMemo(
     () => [
-      { value: '', label: 'Select your interests' }, // Keep value="" for default empty state
+      { value: '', label: 'Select your interests' },
       { value: 'Local Gastronomy', label: 'Local Gastronomy' },
       { value: 'Local Trips', label: 'Local Trips' },
       {
@@ -197,7 +181,7 @@ function BookingForm() {
 
   const roomOptions = useMemo(
     () => [
-      { value: '', label: 'Select a room' }, // Keep value="" for default empty state
+      { value: '', label: 'Select a room' },
       { value: 'Luxus Room', label: 'Luxus Room' },
       { value: 'Affordable Room', label: 'Affordable Room' },
       { value: 'Tied-Budget Room', label: 'Tied-Budget Room' },
@@ -208,14 +192,13 @@ function BookingForm() {
 
   return (
     <Container>
-      {/* Display general success/error messages at the top */}
       {message && (
         <p
           style={{
             color: message.startsWith('Error') ? 'red' : 'green',
             fontWeight: 'bold',
             textAlign: 'center',
-            marginTop: '15px', // Added some margin
+            marginTop: '15px',
           }}
         >
           {message}
@@ -226,7 +209,6 @@ function BookingForm() {
         className="pt-4 d-flex justify-content-center flex-column"
         onSubmit={handleSubmit}
       >
-        {/* Each Row now uses the formData and handleChange */}
         <Row className="mb-3 w-100">
           <Col className="d-flex justify-content-center align-items-center">
             <Form.Label className="w-25 text-end">Name</Form.Label>
@@ -235,7 +217,7 @@ function BookingForm() {
                 type="text"
                 placeholder="Enter your name"
                 className="ms-3 w-50"
-                name="name" // Important: Add name prop for handleChange
+                name="name"
                 value={formData.name}
                 onChange={handleChange}
                 isInvalid={!!errors.name}
@@ -254,7 +236,7 @@ function BookingForm() {
                 type="text"
                 placeholder="Enter your lastname"
                 className="ms-3 w-50"
-                name="lastname" // Add name prop
+                name="lastname"
                 value={formData.lastname}
                 onChange={handleChange}
                 isInvalid={!!errors.lastname}
@@ -273,7 +255,7 @@ function BookingForm() {
                 type="email"
                 placeholder="Enter your email"
                 className="ms-3 w-50"
-                name="email" // Add name prop
+                name="email"
                 value={formData.email}
                 onChange={handleChange}
                 isInvalid={!!errors.email}
@@ -292,7 +274,7 @@ function BookingForm() {
                 type="text"
                 placeholder="Enter your university"
                 className="ms-3 w-50"
-                name="university" // Add name prop
+                name="university"
                 value={formData.university}
                 onChange={handleChange}
                 isInvalid={!!errors.university}
@@ -311,7 +293,7 @@ function BookingForm() {
                 type="date"
                 placeholder="Enter your birth date"
                 className="ms-3 w-50"
-                name="birthDate" // Add name prop
+                name="birthDate"
                 value={formData.birthDate}
                 onChange={handleChange}
                 isInvalid={!!errors.birthDate}
@@ -327,13 +309,12 @@ function BookingForm() {
             <Form.Label className="w-25 text-end">Interests</Form.Label>
             <Col className="ms-3 w-50">
               <Form.Select
-                name="interestsId" // Add name prop
+                name="interestsId"
                 value={formData.interestsId}
                 onChange={handleChange}
                 isInvalid={!!errors.interestsId}
                 className="w-50 ms-3"
               >
-                {/* Dynamically render options */}
                 {interestOptions.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -351,13 +332,12 @@ function BookingForm() {
             <Form.Label className="w-25 text-end">Room</Form.Label>
             <Col className="ms-3 w-50">
               <Form.Select
-                name="roomId" // Add name prop
+                name="roomId"
                 value={formData.roomId}
                 onChange={handleChange}
                 isInvalid={!!errors.roomId}
                 className="w-50 ms-3"
               >
-                {/* Dynamically render options */}
                 {roomOptions.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -378,7 +358,7 @@ function BookingForm() {
                 type="date"
                 placeholder="Enter check-in date"
                 className="ms-3 w-50"
-                name="checkIn" // Add name prop
+                name="checkIn"
                 value={formData.checkIn}
                 onChange={handleChange}
                 isInvalid={!!errors.checkIn}
@@ -397,7 +377,7 @@ function BookingForm() {
                 type="date"
                 placeholder="Enter check-out date"
                 className="ms-3 w-50"
-                name="checkOut" // Add name prop
+                name="checkOut"
                 value={formData.checkOut}
                 onChange={handleChange}
                 isInvalid={!!errors.checkOut}
@@ -417,7 +397,7 @@ function BookingForm() {
                 rows={3}
                 placeholder="Enter any additional comments"
                 className="ms-3 w-50"
-                name="comments" // Add name prop
+                name="comments"
                 value={formData.comments}
                 onChange={handleChange}
               />
@@ -431,8 +411,8 @@ function BookingForm() {
               as="input"
               type="submit"
               className="bg-primary"
-              value={isSubmitting ? 'Submitting...' : 'Submit'} // Dynamic button text
-              disabled={isSubmitting} // Disable button while submitting
+              value={isSubmitting ? 'Submitting...' : 'Submit'}
+              disabled={isSubmitting}
             />
           </Col>
         </Row>
