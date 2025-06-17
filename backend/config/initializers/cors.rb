@@ -14,6 +14,7 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
     origins "http://localhost:3007", # Your local React dev server
             "http://localhost:3001",
             "https://ivonnebenitesrodriguez.github.io" # Your GitHub Pages domain
+            "https://ivonnebenitesrodriguez.github.io/bookingform/"
 
     resource "*", # This applies the CORS settings to all paths on your API
       headers: :any, # Allow any headers
