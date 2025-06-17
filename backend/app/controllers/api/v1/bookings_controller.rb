@@ -2,6 +2,7 @@
 module Api
   module V1
     class BookingsController < ApplicationController
+      skip_before_action :verify_authenticity_token, only: [:create]
       # POST /api/v1/bookings
       # This action will receive the form data from your React frontend
       def create
