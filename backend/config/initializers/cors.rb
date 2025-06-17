@@ -5,7 +5,7 @@
 # Avoid CORS issues when API is called from the frontend app.
 # Handle Cross-Origin Resource Sharing (CORS) in order to accept API requests from your frontend.
 # Read more: https://github.com/cyu/rack-cors
-
+puts "DEBUG: config/initializers/cors.rb is being loaded!"
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
     # Define all allowed origins here as a comma-separated list.
