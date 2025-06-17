@@ -99,7 +99,7 @@ function BookingForm() {
       console.log('Final data to send:', formData);
 
       try {
-        const API_URL = 'http://localhost:3001/api/v1/bookings'; // Your Rails API endpoint
+        const API_URL = 'http://localhost:3000/api/v1/bookings'; // Your Rails API endpoint
 
         // Prepare data to send to Rails backend (snake_case keys for Rails)
         const dataToSend = {
