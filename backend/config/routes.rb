@@ -1,14 +1,16 @@
+# config/routes.rb
+
 Rails.application.routes.draw do
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+  # For your API endpoints
+  namespace :api do
+    namespace :v1 do
+      resources :bookings, only: [:create, :index] # Defines POST /bookings and GET /bookings
+      # Add other resources as needed, e.g., 'resources :users'
+    end
+  end
 
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
-  get "up" => "rails/health#show", as: :rails_health_check
-
-  # Render dynamic PWA files from app/views/pwa/*
-  get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
-  get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-
-  # Defines the root path route ("/")
-  # root "posts#index"
+  # Define a root path if you want to access your React app from the Rails server
+  # root "rails/welcome#index" # This is the default Rails welcome page
+  # You might want to remove or comment out this line if you have a frontend served separately
+  # or you can define it to redirect to your React app later if needed.
 end
