@@ -101,7 +101,7 @@ function BookingForm() {
       try {
         const API_URL = 'https://bookingform.onrender.com/api/v1/bookings'; // Your Rails API endpoint
 
-        // Prepare data to send to Rails backend (snake_case keys for Rails)
+        // Prepare data send to Rails backend (snake_case keys for Rails)
         const dataToSend = {
           booking: {
             first_name: formData.name,
