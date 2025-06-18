@@ -7,7 +7,7 @@ module Api
       # For example:
       # def index
       #   @users = User.all
-      #   render json: @users
+      #   render json: @user
       # end
     end
   end
