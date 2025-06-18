@@ -1,6 +1,7 @@
 # config/routes.rb
 
 Rails.application.routes.draw do
+  root to: proc { [ 200, {}, [ '{"message": "API is live!"}' ] ] } # This is a simple root route that returns a welcome message
   # For your API endpoints
   namespace :api do
     namespace :v1 do
