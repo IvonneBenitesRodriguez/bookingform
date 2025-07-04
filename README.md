@@ -15,10 +15,10 @@
 # Booking Form Documentation 🏩
 
 This project was created using <strong>4 key elements:</strong> <br/>
- - For the Frontend: React 🌠
-- For the Backend:  Rails 💎
-- For the Database: PostgreSQL 📍
-- For the Deployment: Github pages & Render 🎈
+ - For the Frontend: <strong>React 🌠 </strong> 
+- For the Backend:  <strong>Rails 💎 </strong>
+- For the Database: <strong>PostgreSQL 📍</strong>
+- For the Deployment: <strong>Github pages & Render 🎈</strong>
   
 ## About the project:
 
