@@ -12,7 +12,7 @@
 
 
 
-# Booking Form 🏩
+# Booking Form Documentation 🏩
 
 This project was created using 3 key elements: 
  - For the Frontend: React 🌠
