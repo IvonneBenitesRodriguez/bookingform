@@ -14,7 +14,7 @@
 
 # Booking Form Documentation 🏩
 
-This project was created using <strong>3 key elements:</strong> <br/>
+This project was created using <strong>4 key elements:</strong> <br/>
  - For the Frontend: React 🌠
 - For the Backend:  Rails 💎
 - For the Database: PostgreSQL 📍
