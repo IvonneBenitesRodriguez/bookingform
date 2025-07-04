@@ -25,6 +25,7 @@ This project was created using <strong>4 key elements:</strong> <br/>
 I developed this full-stack application which is a booking form of an accommodation.<br/> 
 Users can fill the input fields and submit their information. <br/>
 The information will be stored in the database.<br/>
+Then, both frontend and backend are deployed using open source tools such as render and github pages.<br/>
 
 ### How can i run this project?
 
@@ -41,4 +42,8 @@ psql -U postgres
 - Frontend:
 https://ivonnebenitesrodriguez.github.io/bookingform/
 
-
+### Participants :
+- Ivonne Benites Rodriguez, please visit my portfolio:<br/> 
+https://ivonnebenitesrodriguez.github.io/my_portfolio_2025/ <br/>
+If you have some feedback, I will appreciate it <br/>
+Thank you for visiting 🙂🌸 <br/>
