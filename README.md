@@ -20,9 +20,9 @@ This project was created using <strong>3 key elements:</strong> <br/>
 - For the Database: PostgreSQL 📍
 - For the Deployment: Github pages & Render 🎈
   
-## What is about the project?
+## About the project:
 
-The project is about a booking form of an accommodation.<br/> 
+I developed this full-stack application which is a booking form of an accommodation.<br/> 
 Users can fill the input fields and submit their information. <br/>
 The information will be stored in the database.<br/>
 
