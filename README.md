@@ -23,4 +23,8 @@ rails server
 ### For the Database:
 psql -U postgres
 
+### Deployement URL:
+- Frontend:
+https://ivonnebenitesrodriguez.github.io/bookingform/
+
 
