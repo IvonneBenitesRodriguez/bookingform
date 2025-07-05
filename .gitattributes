@@ -1,0 +1,21 @@
+# bookingform/.gitattributes
+
+# --- Frontend (React/JavaScript) ---
+# Mark JSX files as JavaScript
+mybookingform/frontend/**/*.jsx linguist-language=JavaScript
+# If you use .js for React components with JSX, you might need this too
+mybookingform/frontend/**/*.js linguist-language=JavaScript
+
+# Ignore compiled React build directory (adjust 'build' or 'dist' as per your setup)
+mybookingform/frontend/build/ linguist-generated
+mybookingform/frontend/dist/ linguist-generated
+
+# --- Backend (Ruby/Rails) ---
+# If you see issues with .rb files not being detected as Ruby
+mybookingform/backend/**/*.rb linguist-language=Ruby
+
+# Ignore common Rails logs/temp files/vendored gems if committed
+mybookingform/backend/log/ linguist-generated
+mybookingform/backend/tmp/ linguist-generated
+mybookingform/backend/vendor/bundle/ linguist-vendored
+mybookingform/backend/Gemfile.lock linguist-generated
