@@ -492,7 +492,7 @@ function BookingForm() {
             <Button
               as="input"
               type="submit"
-              className="bg-primary"
+              className="button-submit"
               value={isSubmitting ? 'Submitting...' : 'Submit'}
               disabled={isSubmitting}
             />
