@@ -20,11 +20,11 @@ const Header = () => {
         </Container>
       </Navbar>
       <div>
-        <h2 className="text-center">Casa Yllika Hotel Booking Form</h2>
+        <h2 className="text-center titulo1">Casa Yllika Hotel Booking Form</h2>
       </div>
       <div className="text-center fs-4 d-flex justify-content-center">
         <MdOutlineHotel />
-        <p className="ms-3 me-3">Book your stay with us</p>
+        <p className="ms-3 me-3 titulo2">Book your stay with us</p>
         <MdOutlineHotel />
       </div>
     </header>

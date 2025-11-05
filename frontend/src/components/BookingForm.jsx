@@ -18,6 +18,9 @@ const INITIAL_FORM_STATE = {
   comments: '',
 };
 
+// Helper function for artificial delay
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 function BookingForm() {
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
   const [errors, setErrors] = useState({});
@@ -56,16 +59,13 @@ function BookingForm() {
       newErrors.email = 'Email is invalid';
     }
     if (!formData.nationality)
-      newErrors.nationality = 'Nationality is required'; // This was the last identified error!
+      newErrors.nationality = 'Nationality is required';
     if (!formData.university)
       newErrors.university = 'University name is required';
     if (!formData.birthDate) newErrors.birthDate = 'Birth date is required';
     if (!formData.interestsId)
-      // This checks if a non-empty option was selected
       newErrors.interestsId = 'Please select your interests';
-    if (!formData.roomId)
-      // This checks if a non-empty option was selected
-      newErrors.roomId = 'Please select a room';
+    if (!formData.roomId) newErrors.roomId = 'Please select a room';
     if (!formData.checkIn) newErrors.checkIn = 'Check-in date is required';
     if (!formData.checkOut) newErrors.checkOut = 'Check-out date is required';
     // Date comparison validation
@@ -77,112 +77,136 @@ function BookingForm() {
       newErrors.checkOut = 'Check-out date must be after check-in date';
     }
 
-    // --- DEBUG LOG: Shows what errors were found during this validation run ---
     console.log('Errors found during validation:', newErrors);
 
-    setErrors(newErrors); // Update the errors state
-    return Object.keys(newErrors).length === 0; // Return true if no errors
-  }, [formData]); // Dependency array: ensures the latest 'formData' is used for validation
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  }, [formData]);
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission behavior
-    setMessage(''); // Clear any previous general messages
-    setErrors({}); // Clear previous validation errors from the form fields
-    setIsSubmitting(true); // Set submitting state for UI feedback (e.g., disable button)
+    e.preventDefault();
+    setMessage('');
+    setErrors({});
+    setIsSubmitting(true);
 
-    if (validateForm()) {
-      // Run client-side validation
-      // --- DEBUG LOGS: These will only show if client-side validation passes ---
-      console.log(
-        'Form is valid according to client-side validation. Proceeding to submit data.'
-      );
-      console.log('Final data to send:', formData);
+    if (!validateForm()) {
+      setIsSubmitting(false);
+      setMessage('Please fix the errors in the form.');
+      setTimeout(() => setMessage(''), 5000);
+      return; // Stop if client-side validation fails
+    }
 
+    console.log(
+      'Form is valid according to client-side validation. Proceeding to submit data.'
+    );
+    console.log('Final data to send:', formData);
+
+    const API_URL = 'https://bookingform.onrender.com/api/v1/bookings';
+    const MAX_RETRIES = 3; // Maximum number of retries
+    const RETRY_DELAY_MS = 10000; // 10 seconds delay between retries
+
+    // Prepare data send to Rails backend (snake_case keys for Rails)
+    const dataToSend = {
+      booking: {
+        first_name: formData.name,
+        last_name: formData.lastname,
+        email: formData.email,
+        nationality: formData.nationality,
+        university: formData.university,
+        birth_date: formData.birthDate,
+        interest: formData.interestsId,
+        room_type: formData.roomId,
+        arrival_date: formData.checkIn,
+        departure_date: formData.checkOut,
+        comments: formData.comments,
+      },
+    };
+
+    for (let i = 0; i < MAX_RETRIES; i++) {
       try {
-        const API_URL = 'https://bookingform.onrender.com/api/v1/bookings'; // Your Rails API endpoint
+        setMessage(`Submitting... Attempt ${i + 1} of ${MAX_RETRIES}`);
+        console.log(`Sending data (Attempt ${i + 1}):`, dataToSend);
 
-        // Prepare data send to Rails backend (snake_case keys for Rails)
-        const dataToSend = {
-          booking: {
-            first_name: formData.name,
-            last_name: formData.lastname,
-            email: formData.email,
-            nationality: formData.nationality,
-            university: formData.university,
-            birth_date: formData.birthDate,
-            interest: formData.interestsId, // Map to 'interest' or 'interest_id' as per your Rails model
-            room_type: formData.roomId, // Map to 'room_type' or 'room_id' as per your Rails model
-            arrival_date: formData.checkIn,
-            departure_date: formData.checkOut,
-            comments: formData.comments,
-          },
-        };
-
-        console.log('Sending data:', dataToSend); // Confirm data structure before fetch
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), 60000); // Set a 60-second timeout for the fetch
 
         const response = await fetch(API_URL, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json', // Indicate JSON payload
-            Accept: 'application/json', // Expect JSON response
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
           },
-          body: JSON.stringify(dataToSend), // Convert JS object to JSON string
+          body: JSON.stringify(dataToSend),
+          signal: controller.signal, // Link the abort controller to the fetch request
         });
 
-        const result = await response.json(); // Parse the JSON response from the server
+        clearTimeout(id); // Clear the timeout if fetch completes
+
+        const result = await response.json();
 
         if (response.ok) {
-          // Check if the response status is 2xx (success)
           console.log('Booking submitted successfully!', result);
-          setFormData(INITIAL_FORM_STATE); // Reset form fields on successful submission
+          setFormData(INITIAL_FORM_STATE);
           setMessage(
             'Your information has been sent successfully! Booking ID: ' +
               result.booking.id
           );
-          setTimeout(() => setMessage(''), 5000); // Clear success message after 5 seconds
+          setTimeout(() => setMessage(''), 5000);
+          setIsSubmitting(false); // Successfully submitted, exit loop
+          return;
         } else {
-          // Handle API errors (e.g., 422 Unprocessable Entity for validation errors)
           let backendErrorMessage = 'Booking failed: Unknown error.';
           if (response.status === 422 && result.errors) {
-            // If Rails returns validation errors, format them for display
             const backendErrors = Object.keys(result.errors)
               .map((key) => `${key}: ${result.errors[key].join(', ')}`)
               .join('\n');
             backendErrorMessage = `Please correct the following issues:\n${backendErrors}`;
-            // Optional: Set specific errors to display under fields from backend
-            setErrors(result.errors); // Assuming result.errors matches your `errors` state keys
+            setErrors(result.errors);
           } else if (result.error) {
-            // General error message from backend
             backendErrorMessage = result.error;
           } else {
             backendErrorMessage = `Booking failed with status ${response.status}.`;
           }
-          setMessage(`Error: ${backendErrorMessage}`); // Display backend error
-          setTimeout(() => setMessage(''), 7000); // Clear error message after 7 seconds
-          console.error('Backend errors:', result); // Log full backend error for debugging
+          setMessage(`Error: ${backendErrorMessage}`);
+          setTimeout(() => setMessage(''), 7000);
+          console.error('Backend errors:', result);
+
+          // If it's a server-side validation error (422), don't retry, it's not a network issue
+          if (response.status === 422) {
+            setIsSubmitting(false);
+            return;
+          }
         }
       } catch (error) {
-        // Handle network errors (e.g., server not running, no internet)
-        console.error('Network Error or problem parsing response:', error);
-        setMessage(
-          'Network error: Please check your connection and ensure the backend server is running.'
-        );
-        setTimeout(() => setMessage(''), 7000);
-      } finally {
-        setIsSubmitting(false); // Always reset submitting state
+        console.error(`Network Error (Attempt ${i + 1}):`, error);
+        if (error.name === 'AbortError') {
+          setMessage(`Request timed out (Attempt ${i + 1}). Retrying...`);
+        } else {
+          setMessage(
+            `Network error (Attempt ${
+              i + 1
+            }): Please check connection. Retrying...`
+          );
+        }
+
+        if (i < MAX_RETRIES - 1) {
+          await sleep(RETRY_DELAY_MS); // Wait before retrying
+        } else {
+          // Last attempt failed
+          setMessage(
+            'Error: Could not connect to the server after multiple attempts. Please try again later.'
+          );
+          setTimeout(() => setMessage(''), 10000);
+        }
       }
-    } else {
-      // If client-side validation fails, stop loading and display message
-      setIsSubmitting(false);
-      setMessage('Please fix the errors in the form.');
-      setTimeout(() => setMessage(''), 5000);
     }
+    setIsSubmitting(false); // Ensure submitting state is reset after all retries
   };
 
   // Memoized options for "Interests" dropdown to optimize performance
   const interestOptions = useMemo(
     () => [
-      { value: '', label: 'Select your interests' }, // Default "empty" option
+      { value: '', label: 'Select your interests' },
       { value: 'Local Gastronomy', label: 'Local Gastronomy' },
       { value: 'Local Trips', label: 'Local Trips' },
       {
@@ -197,7 +221,7 @@ function BookingForm() {
   // Memoized options for "Room" dropdown to optimize performance
   const roomOptions = useMemo(
     () => [
-      { value: '', label: 'Select a room' }, // Default "empty" option
+      { value: '', label: 'Select a room' },
       { value: 'Luxus Room', label: 'Luxus Room' },
       { value: 'Affordable Room', label: 'Affordable Room' },
       { value: 'Tied-Budget Room', label: 'Tied-Budget Room' },
@@ -235,13 +259,13 @@ function BookingForm() {
                 type="text"
                 placeholder="Enter your name"
                 className="ms-3 w-50"
-                name="name" // Matches formData.name
+                name="name"
                 value={formData.name}
                 onChange={handleChange}
-                isInvalid={!!errors.name} // Show invalid style if error exists
+                isInvalid={!!errors.name}
               />
               <Form.Control.Feedback type="invalid">
-                {errors.name} {/* Display error message */}
+                {errors.name}
               </Form.Control.Feedback>
             </Col>
           </Col>
@@ -256,7 +280,7 @@ function BookingForm() {
                 type="text"
                 placeholder="Enter your lastname"
                 className="ms-3 w-50"
-                name="lastname" // Matches formData.lastname
+                name="lastname"
                 value={formData.lastname}
                 onChange={handleChange}
                 isInvalid={!!errors.lastname}
@@ -277,7 +301,7 @@ function BookingForm() {
                 type="email"
                 placeholder="Enter your email"
                 className="ms-3 w-50"
-                name="email" // Matches formData.email
+                name="email"
                 value={formData.email}
                 onChange={handleChange}
                 isInvalid={!!errors.email}
@@ -289,7 +313,7 @@ function BookingForm() {
           </Col>
         </Row>
 
-        {/* Nationality Field (The one we were debugging) */}
+        {/* Nationality Field */}
         <Row className="mb-3 w-100">
           <Col className="d-flex justify-content-center align-items-center">
             <Form.Label className="w-25 text-end">Nationality</Form.Label>
@@ -298,7 +322,7 @@ function BookingForm() {
                 type="text"
                 placeholder="Enter your nationality"
                 className="ms-3 w-50"
-                name="nationality" // Matches formData.nationality
+                name="nationality"
                 value={formData.nationality}
                 onChange={handleChange}
                 isInvalid={!!errors.nationality}
@@ -319,7 +343,7 @@ function BookingForm() {
                 type="text"
                 placeholder="Enter your university"
                 className="ms-3 w-50"
-                name="university" // Matches formData.university
+                name="university"
                 value={formData.university}
                 onChange={handleChange}
                 isInvalid={!!errors.university}
@@ -340,7 +364,7 @@ function BookingForm() {
                 type="date"
                 placeholder="Enter your birth date"
                 className="ms-3 w-50"
-                name="birthDate" // Matches formData.birthDate
+                name="birthDate"
                 value={formData.birthDate}
                 onChange={handleChange}
                 isInvalid={!!errors.birthDate}
@@ -358,13 +382,12 @@ function BookingForm() {
             <Form.Label className="w-25 text-end">Interests</Form.Label>
             <Col className="ms-3 w-50">
               <Form.Select
-                name="interestsId" // Matches formData.interestsId
+                name="interestsId"
                 value={formData.interestsId}
                 onChange={handleChange}
                 isInvalid={!!errors.interestsId}
                 className="w-50 ms-3"
               >
-                {/* Render options dynamically from interestOptions */}
                 {interestOptions.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -384,13 +407,12 @@ function BookingForm() {
             <Form.Label className="w-25 text-end">Room</Form.Label>
             <Col className="ms-3 w-50">
               <Form.Select
-                name="roomId" // Matches formData.roomId
+                name="roomId"
                 value={formData.roomId}
                 onChange={handleChange}
                 isInvalid={!!errors.roomId}
                 className="w-50 ms-3"
               >
-                {/* Render options dynamically from roomOptions */}
                 {roomOptions.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -413,7 +435,7 @@ function BookingForm() {
                 type="date"
                 placeholder="Enter check-in date"
                 className="ms-3 w-50"
-                name="checkIn" // Matches formData.checkIn
+                name="checkIn"
                 value={formData.checkIn}
                 onChange={handleChange}
                 isInvalid={!!errors.checkIn}
@@ -434,7 +456,7 @@ function BookingForm() {
                 type="date"
                 placeholder="Enter check-out date"
                 className="ms-3 w-50"
-                name="checkOut" // Matches formData.checkOut
+                name="checkOut"
                 value={formData.checkOut}
                 onChange={handleChange}
                 isInvalid={!!errors.checkOut}
@@ -452,11 +474,11 @@ function BookingForm() {
             <Form.Label className="w-25 text-end">Comments</Form.Label>
             <Col className="ms-3 w-50">
               <Form.Control
-                as="textarea" // Renders as a textarea
+                as="textarea"
                 rows={3}
                 placeholder="Enter any additional comments"
                 className="ms-3 w-50"
-                name="comments" // Matches formData.comments
+                name="comments"
                 value={formData.comments}
                 onChange={handleChange}
               />
@@ -470,9 +492,9 @@ function BookingForm() {
             <Button
               as="input"
               type="submit"
-              className="bg-primary"
-              value={isSubmitting ? 'Submitting...' : 'Submit'} // Dynamic text while submitting
-              disabled={isSubmitting} // Disable button to prevent multiple submissions
+              className="button-submit"
+              value={isSubmitting ? 'Submitting...' : 'Submit'}
+              disabled={isSubmitting}
             />
           </Col>
         </Row>
