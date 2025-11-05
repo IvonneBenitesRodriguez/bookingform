@@ -148,7 +148,7 @@ function BookingForm() {
           console.log('Booking submitted successfully!', result);
           setFormData(INITIAL_FORM_STATE);
           setMessage(
-            'Your information has been sent successfully! Booking ID: ' +
+            'Wonderful! Your information has been sent successfully! Booking ID: ' +
               result.booking.id
           );
           setTimeout(() => setMessage(''), 5000);
