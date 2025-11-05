@@ -18,4 +18,3 @@ class Booking < ApplicationRecord
             errors.add(:departure_date, "must be after the arrival date")
         end
     end
-end
