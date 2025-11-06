@@ -10,24 +10,8 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_06_16_193659) do
+ActiveRecord::Schema[7.2].define(version: 0) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "bookings", force: :cascade do |t|
-    t.string "first_name"
-    t.string "last_name"
-    t.string "email"
-    t.string "nationality"
-    t.string "university"
-    t.date "birth_date"
-    t.text "interest"
-    t.string "room_type"
-    t.date "arrival_date"
-    t.date "departure_date"
-    t.text "comments"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["email"], name: "index_bookings_on_email", unique: true
-  end
 end
