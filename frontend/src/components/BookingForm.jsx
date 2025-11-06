@@ -104,6 +104,7 @@ function BookingForm() {
     const API_URL = 'https://bookingform.onrender.com/api/v1/bookings';
     const MAX_RETRIES = 3; // Maximum number of retries
     const RETRY_DELAY_MS = 10000; // 10 seconds delay between retries
+\q
 
     // Prepare data send to Rails backend (snake_case keys for Rails)
     const dataToSend = {
