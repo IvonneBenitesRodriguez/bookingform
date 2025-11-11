@@ -51,23 +51,23 @@ function BookingForm() {
   const validateForm = useCallback(() => {
     const newErrors = {};
 
-    if (!formData.name) newErrors.name = 'Name is required';
-    if (!formData.lastname) newErrors.lastname = 'Lastname is required';
+    if (!formData.name) {newErrors.name = 'Name is required';}
+    if (!formData.lastname) {newErrors.lastname = 'Lastname is required';}
     if (!formData.email) {
       newErrors.email = 'Email is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Email is invalid';
     }
     if (!formData.nationality)
-      newErrors.nationality = 'Nationality is required';
+      {newErrors.nationality = 'Nationality is required';}
     if (!formData.university)
-      newErrors.university = 'University name is required';
-    if (!formData.birthDate) newErrors.birthDate = 'Birth date is required';
+      {newErrors.university = 'University name is required';}
+    if (!formData.birthDate) {newErrors.birthDate = 'Birth date is required';}
     if (!formData.interestsId)
-      newErrors.interestsId = 'Please select your interests';
-    if (!formData.roomId) newErrors.roomId = 'Please select a room';
-    if (!formData.checkIn) newErrors.checkIn = 'Check-in date is required';
-    if (!formData.checkOut) newErrors.checkOut = 'Check-out date is required';
+      {newErrors.interestsId = 'Please select your interests';}
+    if (!formData.roomId) {newErrors.roomId = 'Please select a room';}
+    if (!formData.checkIn) {newErrors.checkIn = 'Check-in date is required';}
+    if (!formData.checkOut) {newErrors.checkOut = 'Check-out date is required';}
     // Date comparison validation
     if (
       formData.checkIn &&
@@ -104,7 +104,6 @@ function BookingForm() {
     const API_URL = 'https://bookingform.onrender.com/api/v1/bookings';
     const MAX_RETRIES = 3; // Maximum number of retries
     const RETRY_DELAY_MS = 10000; // 10 seconds delay between retries
-\q
 
     // Prepare data send to Rails backend (snake_case keys for Rails)
     const dataToSend = {
@@ -235,16 +234,24 @@ function BookingForm() {
     <Container>
       {/* General message display (success or error) */}
       {message && (
-        <p
+        <div
+          className="alert mb-4"
           style={{
-            color: message.startsWith('Error') ? 'red' : 'green',
-            fontWeight: 'bold',
+            backgroundColor: message.startsWith('Error')
+              ? 'rgba(244, 67, 54, 0.1)'
+              : 'rgba(76, 175, 80, 0.1)',
+            color: message.startsWith('Error') ? '#d32f2f' : '#2e7d32',
+            border: `1px solid ${
+              message.startsWith('Error') ? '#ef5350' : '#66bb6a'
+            }`,
+            borderRadius: '0.5rem',
+            padding: '1rem',
+            fontWeight: '500',
             textAlign: 'center',
-            marginTop: '15px',
           }}
         >
           {message}
-        </p>
+        </div>
       )}
 
       <Form
@@ -252,243 +259,232 @@ function BookingForm() {
         onSubmit={handleSubmit}
       >
         {/* Name Field */}
-        <Row className="mb-3 w-100">
-          <Col className="d-flex justify-content-center align-items-center">
-            <Form.Label className="w-25 text-end">Name</Form.Label>
-            <Col className="ms-3 w-50">
-              <Form.Control
-                type="text"
-                placeholder="Enter your name"
-                className="ms-3 w-50"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                isInvalid={!!errors.name}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.name}
-              </Form.Control.Feedback>
-            </Col>
+        <Form.Group as={Row} className="mb-3 w-100">
+          <Form.Label column sm={12} md={4} lg={3} className="text-md-end">
+            Name
+          </Form.Label>
+          <Col sm={12} md={8} lg={9}>
+            <Form.Control
+              type="text"
+              placeholder="Enter your name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              isInvalid={!!errors.name}
+            />
+            <Form.Control.Feedback type="invalid">
+              {errors.name}
+            </Form.Control.Feedback>
           </Col>
-        </Row>
+        </Form.Group>
 
         {/* Lastname Field */}
-        <Row className="mb-3 w-100">
-          <Col className="d-flex justify-content-center align-items-center">
-            <Form.Label className="w-25 text-end">Lastname</Form.Label>
-            <Col className="ms-3 w-50">
-              <Form.Control
-                type="text"
-                placeholder="Enter your lastname"
-                className="ms-3 w-50"
-                name="lastname"
-                value={formData.lastname}
-                onChange={handleChange}
-                isInvalid={!!errors.lastname}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.lastname}
-              </Form.Control.Feedback>
-            </Col>
+        <Form.Group as={Row} className="mb-3 w-100">
+          <Form.Label column sm={12} md={4} lg={3} className="text-md-end">
+            Lastname
+          </Form.Label>
+          <Col sm={12} md={8} lg={9}>
+            <Form.Control
+              type="text"
+              placeholder="Enter your lastname"
+              name="lastname"
+              value={formData.lastname}
+              onChange={handleChange}
+              isInvalid={!!errors.lastname}
+            />
+            <Form.Control.Feedback type="invalid">
+              {errors.lastname}
+            </Form.Control.Feedback>
           </Col>
-        </Row>
+        </Form.Group>
 
         {/* Email Field */}
-        <Row className="mb-3 w-100">
-          <Col className="d-flex justify-content-center align-items-center">
-            <Form.Label className="w-25 text-end">Email</Form.Label>
-            <Col className="ms-3 w-50">
-              <Form.Control
-                type="email"
-                placeholder="Enter your email"
-                className="ms-3 w-50"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                isInvalid={!!errors.email}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.email}
-              </Form.Control.Feedback>
-            </Col>
+        <Form.Group as={Row} className="mb-3 w-100">
+          <Form.Label column sm={12} md={4} lg={3} className="text-md-end">
+            Email
+          </Form.Label>
+          <Col sm={12} md={8} lg={9}>
+            <Form.Control
+              type="email"
+              placeholder="Enter your email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              isInvalid={!!errors.email}
+            />
+            <Form.Control.Feedback type="invalid">
+              {errors.email}
+            </Form.Control.Feedback>
           </Col>
-        </Row>
+        </Form.Group>
 
         {/* Nationality Field */}
-        <Row className="mb-3 w-100">
-          <Col className="d-flex justify-content-center align-items-center">
-            <Form.Label className="w-25 text-end">Nationality</Form.Label>
-            <Col className="ms-3 w-50">
-              <Form.Control
-                type="text"
-                placeholder="Enter your nationality"
-                className="ms-3 w-50"
-                name="nationality"
-                value={formData.nationality}
-                onChange={handleChange}
-                isInvalid={!!errors.nationality}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.nationality}
-              </Form.Control.Feedback>
-            </Col>
+        <Form.Group as={Row} className="mb-3 w-100">
+          <Form.Label column sm={12} md={4} lg={3} className="text-md-end">
+            Nationality
+          </Form.Label>
+          <Col sm={12} md={8} lg={9}>
+            <Form.Control
+              type="text"
+              placeholder="Enter your nationality"
+              name="nationality"
+              value={formData.nationality}
+              onChange={handleChange}
+              isInvalid={!!errors.nationality}
+            />
+            <Form.Control.Feedback type="invalid">
+              {errors.nationality}
+            </Form.Control.Feedback>
           </Col>
-        </Row>
+        </Form.Group>
 
         {/* University Field */}
-        <Row className="mb-3 w-100">
-          <Col className="d-flex justify-content-center align-items-center">
-            <Form.Label className="w-25 text-end">University</Form.Label>
-            <Col className="ms-3 w-50">
-              <Form.Control
-                type="text"
-                placeholder="Enter your university"
-                className="ms-3 w-50"
-                name="university"
-                value={formData.university}
-                onChange={handleChange}
-                isInvalid={!!errors.university}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.university}
-              </Form.Control.Feedback>
-            </Col>
+        <Form.Group as={Row} className="mb-3 w-100">
+          <Form.Label column sm={12} md={4} lg={3} className="text-md-end">
+            University
+          </Form.Label>
+          <Col sm={12} md={8} lg={9}>
+            <Form.Control
+              type="text"
+              placeholder="Enter your university"
+              name="university"
+              value={formData.university}
+              onChange={handleChange}
+              isInvalid={!!errors.university}
+            />
+            <Form.Control.Feedback type="invalid">
+              {errors.university}
+            </Form.Control.Feedback>
           </Col>
-        </Row>
+        </Form.Group>
 
         {/* Birth Date Field */}
-        <Row className="mb-3 w-100">
-          <Col className="d-flex justify-content-center align-items-center">
-            <Form.Label className="w-25 text-end">Birth Date</Form.Label>
-            <Col className="ms-3 w-50">
-              <Form.Control
-                type="date"
-                placeholder="Enter your birth date"
-                className="ms-3 w-50"
-                name="birthDate"
-                value={formData.birthDate}
-                onChange={handleChange}
-                isInvalid={!!errors.birthDate}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.birthDate}
-              </Form.Control.Feedback>
-            </Col>
+        <Form.Group as={Row} className="mb-3 w-100">
+          <Form.Label column sm={12} md={4} lg={3} className="text-md-end">
+            Birth Date
+          </Form.Label>
+          <Col sm={12} md={8} lg={9}>
+            <Form.Control
+              type="date"
+              placeholder="Enter your birth date"
+              name="birthDate"
+              value={formData.birthDate}
+              onChange={handleChange}
+              isInvalid={!!errors.birthDate}
+            />
+            <Form.Control.Feedback type="invalid">
+              {errors.birthDate}
+            </Form.Control.Feedback>
           </Col>
-        </Row>
+        </Form.Group>
 
         {/* Interests Select Field */}
-        <Row className="mb-3 w-100">
-          <Col className="d-flex justify-content-center align-items-center">
-            <Form.Label className="w-25 text-end">Interests</Form.Label>
-            <Col className="ms-3 w-50">
-              <Form.Select
-                name="interestsId"
-                value={formData.interestsId}
-                onChange={handleChange}
-                isInvalid={!!errors.interestsId}
-                className="w-50 ms-3"
-              >
-                {interestOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </Form.Select>
-              <Form.Control.Feedback type="invalid">
-                {errors.interestsId}
-              </Form.Control.Feedback>
-            </Col>
+        <Form.Group as={Row} className="mb-3 w-100">
+          <Form.Label column sm={12} md={4} lg={3} className="text-md-end">
+            Interests
+          </Form.Label>
+          <Col sm={12} md={8} lg={9}>
+            <Form.Select
+              name="interestsId"
+              value={formData.interestsId}
+              onChange={handleChange}
+              isInvalid={!!errors.interestsId}
+            >
+              {interestOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </Form.Select>
+            <Form.Control.Feedback type="invalid">
+              {errors.interestsId}
+            </Form.Control.Feedback>
           </Col>
-        </Row>
+        </Form.Group>
 
         {/* Room Select Field */}
-        <Row className="mb-3 w-100">
-          <Col className="d-flex justify-content-center align-items-center">
-            <Form.Label className="w-25 text-end">Room</Form.Label>
-            <Col className="ms-3 w-50">
-              <Form.Select
-                name="roomId"
-                value={formData.roomId}
-                onChange={handleChange}
-                isInvalid={!!errors.roomId}
-                className="w-50 ms-3"
-              >
-                {roomOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </Form.Select>
-              <Form.Control.Feedback type="invalid">
-                {errors.roomId}
-              </Form.Control.Feedback>
-            </Col>
+        <Form.Group as={Row} className="mb-3 w-100">
+          <Form.Label column sm={12} md={4} lg={3} className="text-md-end">
+            Room
+          </Form.Label>
+          <Col sm={12} md={8} lg={9}>
+            <Form.Select
+              name="roomId"
+              value={formData.roomId}
+              onChange={handleChange}
+              isInvalid={!!errors.roomId}
+            >
+              {roomOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </Form.Select>
+            <Form.Control.Feedback type="invalid">
+              {errors.roomId}
+            </Form.Control.Feedback>
           </Col>
-        </Row>
+        </Form.Group>
 
         {/* Check-in Date Field */}
-        <Row className="mb-3 w-100">
-          <Col className="d-flex justify-content-center align-items-center">
-            <Form.Label className="w-25 text-end">Check-in</Form.Label>
-            <Col className="ms-3 w-50">
-              <Form.Control
-                type="date"
-                placeholder="Enter check-in date"
-                className="ms-3 w-50"
-                name="checkIn"
-                value={formData.checkIn}
-                onChange={handleChange}
-                isInvalid={!!errors.checkIn}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.checkIn}
-              </Form.Control.Feedback>
-            </Col>
+        <Form.Group as={Row} className="mb-3 w-100">
+          <Form.Label column sm={12} md={4} lg={3} className="text-md-end">
+            Check-in
+          </Form.Label>
+          <Col sm={12} md={8} lg={9}>
+            <Form.Control
+              type="date"
+              placeholder="Enter check-in date"
+              name="checkIn"
+              value={formData.checkIn}
+              onChange={handleChange}
+              isInvalid={!!errors.checkIn}
+            />
+            <Form.Control.Feedback type="invalid">
+              {errors.checkIn}
+            </Form.Control.Feedback>
           </Col>
-        </Row>
+        </Form.Group>
 
         {/* Check-out Date Field */}
-        <Row className="mb-3 w-100">
-          <Col className="d-flex justify-content-center align-items-center">
-            <Form.Label className="w-25 text-end">Check-out</Form.Label>
-            <Col className="ms-3 w-50">
-              <Form.Control
-                type="date"
-                placeholder="Enter check-out date"
-                className="ms-3 w-50"
-                name="checkOut"
-                value={formData.checkOut}
-                onChange={handleChange}
-                isInvalid={!!errors.checkOut}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.checkOut}
-              </Form.Control.Feedback>
-            </Col>
+        <Form.Group as={Row} className="mb-3 w-100">
+          <Form.Label column sm={12} md={4} lg={3} className="text-md-end">
+            Check-out
+          </Form.Label>
+          <Col sm={12} md={8} lg={9}>
+            <Form.Control
+              type="date"
+              placeholder="Enter check-out date"
+              name="checkOut"
+              value={formData.checkOut}
+              onChange={handleChange}
+              isInvalid={!!errors.checkOut}
+            />
+            <Form.Control.Feedback type="invalid">
+              {errors.checkOut}
+            </Form.Control.Feedback>
           </Col>
-        </Row>
+        </Form.Group>
 
         {/* Comments Textarea Field */}
-        <Row className="mb-3 w-100">
-          <Col className="d-flex justify-content-center align-items-center">
-            <Form.Label className="w-25 text-end">Comments</Form.Label>
-            <Col className="ms-3 w-50">
-              <Form.Control
-                as="textarea"
-                rows={3}
-                placeholder="Enter any additional comments"
-                className="ms-3 w-50"
-                name="comments"
-                value={formData.comments}
-                onChange={handleChange}
-              />
-            </Col>
+        <Form.Group as={Row} className="mb-3 w-100">
+          <Form.Label column sm={12} md={4} lg={3} className="text-md-end">
+            Comments
+          </Form.Label>
+          <Col sm={12} md={8} lg={9}>
+            <Form.Control
+              as="textarea"
+              rows={3}
+              placeholder="Enter any additional comments"
+              name="comments"
+              value={formData.comments}
+              onChange={handleChange}
+            />
           </Col>
-        </Row>
+        </Form.Group>
 
         {/* Submit Button */}
-        <Row className="w-100">
+        <Row className="w-100 mt-4">
           <Col className="d-flex justify-content-center">
             <Button
               as="input"
