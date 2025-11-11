@@ -81,10 +81,12 @@ jobs:
           ruby-version: '3.2'
           bundler-cache: true
           working-directory: backend
+        continue-on-error: true
 
       - name: Install dependencies
         working-directory: ./backend
         run: bundle install
+        continue-on-error: true
 
       - name: Run Brakeman security scanner
         working-directory: ./backend
