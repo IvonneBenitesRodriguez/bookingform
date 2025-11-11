@@ -1,10 +1,10 @@
-# Security Policy
+## Security integrated in the Full-Stack web Application "bookingform"
 
-## 🔒 Security Overview
+### 🔒 Security Overview
 
 This project implements comprehensive security measures including static analysis, dependency scanning, and automated CI/CD security checks.
 
-## 🛡️ Security Measures Implemented
+### 🛡️ Security Measures Implemented
 
 ### 1. Static Code Analysis
 - **ESLint Security Plugin** - Detects common JavaScript vulnerabilities
@@ -21,7 +21,7 @@ This project implements comprehensive security measures including static analysi
 - Pull request security reviews
 - Scheduled weekly scans
 
-## 📊 Security Rules
+### 📊 Security Rules
 
 ### ESLint Security Rules
 
@@ -34,25 +34,7 @@ This project implements comprehensive security measures including static analysi
 | `no-eval` | Error | Blocks dynamic code execution |
 | `eqeqeq` | Error | Enforces strict equality |
 
-## 🐛 Reporting a Vulnerability
-
-If you discover a security vulnerability, please follow these steps:
-
-### DO NOT:
-- ❌ Open a public GitHub issue
-- ❌ Discuss publicly on social media
-- ❌ Share details before fix is available
-
-### DO:
-1. ✅ Email security details to: [your-security-email@example.com]
-2. ✅ Include:
-   - Description of the vulnerability
-   - Steps to reproduce
-   - Potential impact
-   - Suggested fix (if available)
-3. ✅ Wait for confirmation (we aim to respond within 48 hours)
-
-## 🔄 Security Update Process
+### 🔄 Security Update Process
 
 1. **Report Received** - We acknowledge within 48 hours
 2. **Assessment** - We evaluate severity and impact
@@ -60,7 +42,7 @@ If you discover a security vulnerability, please follow these steps:
 4. **Release** - We deploy the fix (critical issues < 7 days)
 5. **Disclosure** - We publish security advisory after fix
 
-## 📋 Security Checklist for Contributors
+### 📋 Security Checklist for Contributors
 
 Before submitting a PR, ensure:
 
@@ -149,13 +131,5 @@ This file is regularly updated. Last update: 2025-11-11
 - **2025-11-11**: Added CI/CD security pipeline
 - **2025-11-11**: Integrated CodeQL scanning
 - **2025-11-11**: Added dependency vulnerability scanning
-
-## 📞 Contact
-
-For security-related questions or concerns:
-- **Email**: [your-security-email@example.com]
-- **GitHub**: Open a private security advisory
-
----
 
 **Security is a continuous process. Stay vigilant!** 🛡️
