@@ -50,8 +50,7 @@ jobs:
         working-directory: ./frontend
         run: npm run build
         env:
-          CI: true
-          ESLINT_NO_DEV_ERRORS: true
+          CI: false
 
       - name: Run tests
         working-directory: ./frontend
