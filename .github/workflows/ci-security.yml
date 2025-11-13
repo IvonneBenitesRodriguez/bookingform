@@ -103,6 +103,17 @@ jobs:
           bundle audit check --update
         continue-on-error: true
 
+      - name: Setup test database
+        working-directory: ./backend
+        run: |
+          RAILS_ENV=test bundle exec rails db:migrate
+        continue-on-error: true
+
+      - name: Run RSpec unit tests
+        working-directory: ./backend
+        run: bundle exec rspec --format documentation
+        continue-on-error: true
+
   dependency-review:
     name: Dependency Review
     runs-on: ubuntu-latest
