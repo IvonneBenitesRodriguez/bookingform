@@ -5,7 +5,7 @@
 # Prevents sensitive data from appearing in logs
 # Threat Model: I.2 - Sensitive Data in Logs (Risk: High)
 
-# Be sure to restart your server when you modify this file.
+# Restart the server when this file is modified.
 
 # Configure parameters to be partially matched (e.g. passw matches password) and filtered from the log file.
 # Use this to limit dissemination of sensitive information.

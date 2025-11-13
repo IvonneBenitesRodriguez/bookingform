@@ -5,14 +5,7 @@
 # Protects against Denial of Service attacks by rate limiting requests
 
 class Rack::Attack
-  ### Configure Cache ###
-
-  # If you don't want to use Rails.cache (Rack::Attack's default), then
-  # configure it here. Using Rails.cache is recommended.
-  #
-  # Note: The store is only used for throttling (not blacklisting).
-  # Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new
-
+ 
   ### Throttle Configuration ###
 
   # Throttle all requests by IP (general rate limit)
@@ -39,7 +32,7 @@ class Rack::Attack
     end
   end
 
-  # Throttle login attempts (if you add authentication later)
+  # Throttle login attempts (if authentication is added later)
   throttle('logins/email', limit: 5, period: 20.minutes) do |req|
     if req.path == '/login' && req.post?
       req.params['email'].to_s.downcase.gsub(/\s+/, "").presence
@@ -69,7 +62,7 @@ class Rack::Attack
   ### Blocklists ###
 
   # Block suspicious IP addresses
-  # You can add IPs to blocklist dynamically
+  # It is possible to add IPs to blocklist dynamically
   blocklist('block suspicious IPs') do |req|
     # Check if IP is in blocklist (stored in Rails cache)
     Rails.cache.read("blocked:#{req.ip}")
@@ -77,7 +70,7 @@ class Rack::Attack
 
   # Block requests from known bad user agents
   blocklist('block bad user agents') do |req|
-    # Customize based on your needs
+    # Customize based on the application's requirements
     req.user_agent =~ /curl|wget|python-requests|scrapy/i
   end
 
@@ -88,7 +81,7 @@ class Rack::Attack
     req.ip == '127.0.0.1' || req.ip == '::1'
   end
 
-  # Allow trusted IP addresses (e.g., your office IP)
+  # Allow trusted IP addresses (e.g., the office IP)
   # safelist('allow from trusted IPs') do |req|
   #   ['192.168.1.1', '10.0.0.1'].include?(req.ip)
   # end

@@ -81,12 +81,12 @@ class Booking < ApplicationRecord
     end
   end
 
-  # Validate birth date is reasonable (between 18 and 120 years ago)
+  # Validate birth date is reasonable (between 18 and 98 years ago)
   def birth_date_is_reasonable
     return unless birth_date.present?
 
     min_age = 18.years.ago.to_date
-    max_age = 120.years.ago.to_date
+    max_age = 98.years.ago.to_date
 
     if birth_date > min_age
       errors.add(:birth_date, "indicates age under 18. Must be at least 18 years old to book.")
