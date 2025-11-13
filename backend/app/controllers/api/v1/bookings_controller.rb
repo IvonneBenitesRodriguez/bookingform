@@ -4,7 +4,7 @@ module Api
     class BookingsController < ApplicationController
       skip_before_action :verify_authenticity_token, only: [ :create ]
       # POST /api/v1/bookings
-      # This action will receive the form data from your React frontend
+      # This action will receive the form data from the React frontend
       def create
         @booking = Booking.new(booking_params) # Create a new Booking instance with permitted params
 
@@ -18,7 +18,7 @@ module Api
       end
 
       # GET /api/v1/bookings
-      # This action would allow you to fetch all bookings (e.g., for an admin view)
+      # This action would allow to fetch all bookings (e.g., for an admin view)
       def index
         @bookings = Booking.all
         render json: @bookings

@@ -3,7 +3,7 @@
 module Api
   module V1
     class UsersController < ApplicationController
-      # You will add your actions (e.g., index, show, create, update, destroy) here later.
+      # this will add here actions (e.g., index, show, create, update, destroy) later.
       # For example:
       # def index
       #   @users = User.all
