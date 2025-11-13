@@ -1,24 +1,15 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
 
-Things you may want to cover:
+1
+## Backend of Bookingform:
 
-* Ruby version
+### The Backend of this Application has been built using Framework Ruby and Rails.
+### Rails is a framework of Ruby which is a programming language that not only provides a
+### MVC architecture which provides a model-view-controller pattern to organize the application.
+### It is important to mention that Ruby on Rails framework, by utilizing its Active Record ORM and ### parameterized queries as the default mechanism for database access, provides strong, built-in ### protection against SQL Injection attacks.
 
-* System dependencies
+## Version Used: 3.2.2
 
-* Configuration
 
-* Database creation
 
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
